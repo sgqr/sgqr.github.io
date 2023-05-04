@@ -1,0 +1,445 @@
+<!DOCTYPE html>
+<html lang="en" >
+
+<head>
+<meta charset="UTF-8">
+
+<title>GenSGQR</title>
+<meta name="viewport" content="width=device-width, initial-scale=1">
+  
+<style>
+@import 'https://fonts.googleapis.com/css?family=Dosis|Roboto:300,400';
+* {
+	margin: 0;
+	padding: 0;
+}
+
+body {
+	background: #ffc185;
+}
+
+.container{
+	position:absolute;
+	width: 90%;
+    max-width: 480px;
+    margin: 0;
+	height:520px;
+    top: 50%;
+    left: 50%;
+    transform: translate(-50%, -50%);
+}
+
+form {
+	position: absolute;
+	text-align: center;
+	background: #fff;
+    width: 100%;
+	height: 520px;
+	border-radius: 5px;
+	padding: 30px 20px 0 20px;
+	box-shadow: 0 10px 50px 0 rgba(0, 0, 0, 0.25);
+	box-sizing: border-box;
+}
+
+p {
+	font-family: 'Roboto', sans-serif;
+	font-weight: 100;
+	text-transform: uppercase;
+	font-size: 15px;
+	color: #87613d;
+	margin-bottom: 40px;
+}
+
+p > span {
+	padding-top: 3px;
+	display: block;
+	font-weight: 400;
+	font-size: 9px;
+}
+
+h3 {
+	font-family: 'Dosis';
+	font-size: 35px;
+	text-transform: uppercase;
+	color: #87613d;
+	margin-bottom: 5px;
+}
+h4 {
+	font-family: 'Dosis';
+	font-size: 25px;
+	text-transform: uppercase;
+	color: #87613d;
+	margin-bottom: 5px;
+}
+
+input,
+button{
+	outline: none !important; 
+}
+
+
+.form-btn {
+	position: absolute;
+	width: 50%;
+	height: 60px;
+	bottom: 0;
+	border: 0;
+	font-family: 'Dosis';
+	font-size: 24px;
+	text-transform: uppercase;
+    text-decoration: none;
+	cursor: pointer;
+}
+a.form-btn {
+    line-height: 250%;
+}
+
+.form-btn.sx {
+	left: 0;
+	border-radius: 0 0 0 5px;
+	background-color: rgba(255, 125, 50, 0.75);
+	color: #fff;
+	transition:all 0.3s linear;
+}
+
+.form-btn.sx:hover {
+	background-color:rgba(255, 125, 0, 0.65);
+	color: #fff;
+}
+
+.form-btn.sx.back {
+	background-color: rgba(0, 0, 0, 0.15);
+	transition:all 0.3s linear;
+}
+
+.form-btn.sx.back:hover {
+	background-color: rgba(0, 0, 0, 0.35);
+}
+
+.form-btn.dx{
+	right: 0;
+	border-radius: 0 0 5px 0;
+	background-color: #ff7d00;
+	color: #fff;
+}
+
+input {
+	border: 1px solid #ffc185;
+	width: 85%;
+	font-family: 'Roboto';
+	color: #000;
+	text-align: center;
+	font-size: 21px;
+	font-weight:100;
+	margin-bottom:25px;
+    padding: 7px;
+}
+input:focus{
+    border: 1px solid #ff7d00;
+}
+
+::-webkit-input-placeholder {
+   color: #ff7d00;
+	font-family: 'Roboto';
+	font-weight:100;
+}
+
+:-moz-placeholder {
+   color: #ff7d00;  
+	font-family: 'Roboto';
+	font-weight:100;
+}
+
+::-moz-placeholder {
+   color: #ff7d00;  
+	font-family: 'Roboto';
+	font-weight:100;
+}
+
+:-ms-input-placeholder {  
+   color: #ff7d00; 
+	font-family: 'Roboto';
+	font-weight:100;
+}
+
+.generatedQR{
+    z-index: 1;
+    transform: perspective(100px) translate3d(100px, 0px, -30px);
+    opacity: 0.5;
+}
+
+.createNew {
+    overflow: hidden;
+	z-index: 2;
+    padding-left: 0;
+    padding-right: 0;
+}
+.createNew h4{
+    font-size: 18px;
+    text-align:left;
+    margin-left: 25px;
+}
+.createNewInputs{
+    margin-top: -15px;
+    padding-bottom: 30px;
+    height: 300px;
+    overflow-y: auto;
+}
+.createNewActions{
+    background:white;
+}
+
+#qrcode-wrapper{
+	width: 90%;
+	max-width: 960px;
+	text-align:center;
+	margin: 20px auto 0;
+}
+#qrcode{
+	box-sizing: border-box;
+	display:inline-block;
+	width: 240px;
+	border: 20px solid #fff;
+}
+#qrcode canvas{
+    display:none;
+}
+#qrcode img{
+	display:inline-block;
+	box-sizing: border-box;
+	width: 190px;
+}
+.tip{
+    width: 240px;
+    margin: 20px auto 0;
+    font-family: 'Roboto', sans-serif;
+	font-size: 18px;
+}
+
+.active-dx{
+	animation-name: foregrounding-dx;
+	animation-duration: 0.2s;
+	animation-fill-mode: forwards;
+}
+
+.active-sx{
+	animation-name: foregrounding-sx;
+	animation-duration: 0.2s;
+	animation-fill-mode: forwards;
+}
+
+.inactive-dx{
+	animation-name: overshadowing-dx;
+	animation-duration: 0.2s;
+	animation-fill-mode: forwards;
+}
+
+.inactive-sx{
+	animation-name: overshadowing-sx;
+	animation-duration: 0.2s;
+	animation-fill-mode: forwards;
+}
+
+@keyframes overshadowing-dx {
+	0%{
+		z-index:2;
+		transform: perspective(100px) translate3d(0px, 0px, 0px);
+		opacity: 1;
+		box-shadow: 0 10px 50px 0 rgba(0, 0, 0, 0.25);
+	}
+	100%{
+		z-index: 1;
+		transform: perspective(100px) translate3d(100px, 0px, -30px);
+		opacity: 0.5;
+		box-shadow: 0 10px 20px 0 rgba(0, 0, 0, 0.25);
+	}
+}
+
+@keyframes overshadowing-sx {
+	0%{
+		z-index:2;
+		transform: perspective(100px) translate3d(0px, 0px, 0px);
+		opacity: 1;
+		box-shadow: 0 10px 50px 0 rgba(0, 0, 0, 0.25);
+	}
+	100%{
+		z-index: 1;
+		transform: perspective(100px) translate3d(-100px, 0px, -30px);
+		opacity: 0.5;
+		box-shadow: 0 10px 20px 0 rgba(0, 0, 0, 0.25);
+	}
+}
+
+@keyframes foregrounding-dx {
+	0%{
+		z-index:1;
+		transform: perspective(100px) translate3d(100px, 0px, -30px);
+		opacity: 0.5;
+	}
+	50%{
+		z-index:2;
+		transform: perspective(100px) translate3d(400px, 0px, -30px);
+	}
+	100%{
+		z-index:2;
+		transform: perspective(100px) translate3d(0px, 0px, 0px);
+		opacity: 1;
+	}
+}
+
+@keyframes foregrounding-sx {
+	0%{
+		z-index:1;
+		transform: perspective(100px) translate3d(-100px, 0px, -30px);
+		opacity: 0.5;
+	}
+	50%{
+		z-index:2;
+		transform: perspective(100px) translate3d(-400px, 0px, -30px);
+	}
+	100%{
+		z-index:2;
+		transform: perspective(100px) translate3d(0px, 0px, 0px);
+		opacity: 1;
+	}
+}
+</style>
+</head>
+
+<body>
+  <div class="container">
+	<form class="createNew">
+		<h3>GenSGQR</h3>
+		<p>Generate Static SGQR</p>
+        <div class="createNewInputs">
+            <input id="merchant-name" type="text" placeholder="Merchant Name" autocomplete='off' />
+            <h4>PayNow</h4>
+            <input id="paynow-uen" type="text" placeholder="PayNow UEN" />
+            <input id="paynow-ref" type="text" placeholder="PayNow Reference" />
+			<h4>GrabPay</h4>
+            <input id="grabpay-merchantid" type="text" placeholder="GrabPay Merchant Id" />
+            <h4>Wechat Pay</h4>
+            <input id="wechatpay-merchant-h5qr" type="text" placeholder="Wechat Pay H5 QR Url" />
+            <h4>AliPay</h4>
+            <input id="alipay-staticqr" type="text" placeholder="AliPay Static QR Url e.g. https://qr.alipay.com/ocx" />
+        </div>
+        <div class="createNewActions">
+            <button class="form-btn sx reset" type="button">Reset</button>
+            <button class="form-btn dx generate" type="button">Generate</button>
+        </div>
+	</form>
+	<form class="generatedQR">
+		<h4>Generated SGQR</h4>
+		<div id="qrcode-wrapper">
+            <div id="qrcode"></div>
+        </div>
+        <div class="tip">Try scanning the QR Code to make sure it is readable before usage</div>
+        <a class="form-btn sx download" download="sgqr" onclick="this.href = document.querySelector('#qrcode img').getAttribute('src');">Download</a>
+        <button class="form-btn dx back" type="button">Back</button>
+	</form>
+</div>
+<!-- <script src="gensgqr.min.js"></script> -->
+<script src="gensgqr.js"></script>
+<script src="https://cdn.rawgit.com/KeeeX/qrcodejs/master/qrcode.min.js"></script>
+<script>
+var qr = new QRCode(document.getElementById('qrcode'), {
+	text: '',
+	width: 1024,
+	height: 1024,
+	colorDark : "#000000",
+	colorLight : "#ffffff",
+	correctLevel : QRCode.CorrectLevel.H
+});
+
+document.querySelector(".generate").addEventListener('click', function (){
+    var merchPayInfo = [];
+    var payindex = 26;
+    var showQRbox = false;
+
+    if(document.getElementById('paynow-uen').value.trim().length > 0){
+        merchPayInfo[payindex] = new Object();
+        merchPayInfo[payindex].id = String(payindex);
+        merchPayInfo[payindex].value = [{ id: '00', value: 'SG.PAYNOW'},
+                    { id: '01', value: '2' },
+                    { id: '02', value: document.getElementById('paynow-uen').value.trim() },
+					{ id: '03', value: '1' },
+					{ id: '05', value: document.getElementById('paynow-ref').value.trim() },
+                    ];
+        payindex++;
+    }
+    if(document.getElementById('grabpay-merchantid').value.trim().length > 0){
+        merchPayInfo[payindex] = new Object();
+        merchPayInfo[payindex].id = String(payindex);
+        merchPayInfo[payindex].value = [{ id: '00', value: 'COM.GRAB' },
+                    { id: '01', value: document.getElementById('grabpay-merchantid').value.trim() },
+                    ];
+        payindex++;
+    }
+    if(document.getElementById('wechatpay-merchant-h5qr').value.trim().length > 0){
+		var qrlB64 = window.btoa(document.getElementById('wechatpay-merchant-h5qr').value.trim())
+        merchPayInfo[payindex] = new Object();
+        merchPayInfo[payindex].id = String(payindex);
+        merchPayInfo[payindex].value = [{ id: '00', value: 'com.qq.weixin.pay' },
+					{ id: '05', value: qrlB64 },
+                    ];
+        payindex++;
+    }
+    if(document.getElementById('alipay-staticqr').value.trim().length > 0){
+        merchPayInfo[payindex] = new Object();
+        merchPayInfo[payindex].id = String(payindex);
+        merchPayInfo[payindex].value = [{ id: '00', value: 'com.alipay' },
+                    { id: '01', value: document.getElementById('alipay-staticqr').value.trim() },
+                    ];
+        payindex++;
+    }
+	var dateNow = dateToYMD(new Date());
+	merchPayInfo[payindex] = new Object();
+	merchPayInfo[payindex].id = '51';
+	merchPayInfo[payindex].value = [{ id: '00', value: 'SG.SGQR' },
+				{ id: '01', value: dateNow + parseInt(dateNow).toString(16).toUpperCase() },
+				{ id: '02', value: '01.0003' },
+				{ id: '03', value: '059108' },
+				{ id: '04', value: '00' },
+				{ id: '05', value: '00' },
+				{ id: '06', value: '0000' },
+				{ id: '07', value: '20180918' },
+				];
+    let qrcode = new generateSGQR({
+        merchant:  document.getElementById('merchant-name').value.trim(),   //merchant name to embed in the QR code. Optional.  
+        payinfo: merchPayInfo       
+    });
+    qr.clear();
+    qr.makeCode(qrcode.output());	
+
+	document.querySelector(".generatedQR").classList.add("active-dx");
+	document.querySelector(".createNew").classList.add("inactive-sx");
+	document.querySelector(".createNew").classList.remove("active-sx");
+	document.querySelector(".generatedQR").classList.remove("inactive-dx");
+});
+
+function dateToYMD(date) {
+    var d = date.getDate();
+    var m = date.getMonth() + 1; //Month from 0 to 11
+    var y = date.getFullYear();
+    return '' + y + (d <= 9 ? '0' + d : d) + (m<=9 ? '0' + m : m);
+}
+
+document.querySelector(".reset").addEventListener('click', function (){
+    document.getElementById('merchant-name').value = '';    
+    document.getElementById('paynow-uen').value = '';
+    document.getElementById('grabpay-merchantid').value = '';
+    document.getElementById('wechatpay-merchantacc').value = '';
+    document.getElementById('alipay-staticqr').value = '';
+});
+
+document.querySelector(".back").addEventListener('click', function () {
+	document.querySelector(".createNew").classList.add("active-sx");
+	document.querySelector(".generatedQR").classList.add("inactive-dx");
+	document.querySelector(".generatedQR").classList.remove("active-dx");
+	document.querySelector(".createNew").classList.remove("inactive-sx");
+});
+</script>
+</body>
+
+</html>
+ 
